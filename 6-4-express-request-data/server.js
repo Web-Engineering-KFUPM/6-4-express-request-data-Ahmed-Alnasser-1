@@ -105,24 +105,40 @@ LAB SETUP INSTRUCTIONS
  */
 
 //import express
-
+const express = require('express');
 
 // create express app instance to create web server
-
+const app = express();
 
 
 // Query params: /echo?name=Ali&age=22
-
-
+app.get("/echo", (req, res) => {
+  const { name, age } = req.query;
+  if (!name || !age) {
+    return res.status(400).json({ ok: false, error: "name & age required" });
+  }
+  res.json({ ok: true, name, age, msg: `Hello ${name}, you are ${age}` });
+});
 // Route params: /profile/First/Last
-
+app.get("/profile/:first/:last", (req, res) => {
+  const { first, last } = req.params;
+  res.json({ ok: true, fullName: `${first} ${last}` });
+});
 
 // Route param middleware example: /users/42
-
-
+app.param("userId", (req, res, next, userId) => {
+  const num = Number(userId);
+  if (isNaN(num) || num <= 0) {
+    return res.status(400).json({ ok: false, error: "userId must be positive number" });
+  }
+  req.userIdNum = num;
+  next();
+});
 // Route params: /users/:userId route
 
 
 // Start the server by listening
-
-
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`API running at http://localhost:${PORT}`);
+});
